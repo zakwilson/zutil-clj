@@ -1,4 +1,5 @@
 (ns zutil.util
+  (:use clojure.contrib.seq-utils)
   (:import (java.io File)))
 
 (defn position
@@ -14,7 +15,7 @@
     (when pos (- len pos))))
 
 (defn member? [x coll]
-  (when (filter #(= % x) coll)
+  (when (seq (filter #(= % x) coll))
     x))
 
 
@@ -34,3 +35,21 @@
 
 (defn identity* [x y]
   (identity y))
+
+(defn get-dir [d]
+  (map (memfn getPath)
+       (filter (memfn isFile)
+               (.listFiles (File. d)))))
+
+(defn abs [n]
+  (if (pos? n)
+    n
+    (- n)))
+
+(defn zpmap [f coll]
+  (apply concat
+         (pmap #(doall (map f %))
+              (partition-all (Math/ceil (/ (count coll)
+                                             (float (+ 2 (.availableProcessors
+                                                          (Runtime/getRuntime))))))
+                             coll))))
