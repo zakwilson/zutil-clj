@@ -15,7 +15,7 @@
       default)))
 
 (defn intersection-with [f m1 m2]
-  (loop [ks (keys m1);(set (concat (keys m1) (keys m2)))
+  (loop [ks (keys m1)
          ret (transient {})]
     (if (seq ks)
       (let [k (first ks)
@@ -31,7 +31,7 @@
   (intersection-with (fn [a b] a) m1 m2))
 
 (defn difference [m1 m2]
-  (loop [ks (keys m1);(set (concat (keys m1) (keys m2)))
+  (loop [ks (keys m1)
          ret (transient {})]
     (if (seq ks)
       (let [k (first ks)
