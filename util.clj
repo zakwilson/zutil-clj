@@ -1,5 +1,5 @@
 (ns zutil.util
-  (:use clojure.contrib.seq-utils)
+;  (:use clojure.contrib.seq-utils :only (position partition-all))
   (:import (java.io File)))
 
 (defn position
