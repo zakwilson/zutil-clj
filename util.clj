@@ -41,11 +41,6 @@
        (filter (memfn isFile)
                (.listFiles (File. d)))))
 
-(defn abs [n]
-  (if (pos? n)
-    n
-    (- n)))
-
 (defn zpmap [f coll]
   (apply concat
          (pmap #(doall (map f %))

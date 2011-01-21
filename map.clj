@@ -6,7 +6,8 @@
 ;   the terms of this license.
 ;   You must not remove this notice, or any other, from this software.
 
-(ns zutil.map)
+(ns zutil.map
+  (:use clojure.contrib.math))
 
 (defn lookup-with [default k a-map]
   (let [found (a-map k)]
