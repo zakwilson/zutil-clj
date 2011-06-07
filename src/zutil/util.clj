@@ -48,3 +48,17 @@
                                              (float (+ 2 (.availableProcessors
                                                           (Runtime/getRuntime))))))
                              coll))))
+
+
+;; third-party - no copyright assignment for make-thumbnail
+
+(defn make-thumbnail [filename new-filename width]
+  (let [img (javax.imageio.ImageIO/read (j/as-file filename))
+        imgtype (java.awt.image.BufferedImage/TYPE_INT_RGB)
+        width (min (.getWidth img) width)
+        height (* (/ width (.getWidth img)) (.getHeight img))
+        simg (java.awt.image.BufferedImage. width height imgtype)
+        g (.createGraphics simg)]
+    (.drawImage g img 0 0 width height nil)
+    (.dispose g)
+    (javax.imageio.ImageIO/write simg "jpg" (j/as-file new-filename))))
