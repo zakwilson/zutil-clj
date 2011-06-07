@@ -58,3 +58,17 @@
           merge2 (fn [m1 m2]
 		   (reduce merge-entry (or m1 {}) (seq m2)))]
       (reduce merge2 maps))))
+
+(defn keyword-keys [m]
+  (into {} (map (fn [kv] [(keyword (key kv)) (val kv)])
+                m)))
+
+(defn map-map [f m]
+  (let [kv-f (fn [kv]
+               [(key kv) (f (val kv))])]
+    (into {} (map kv-f m))))
+
+(defn map-keys [f m & [ks]]
+  (let [submap (select-keys m ks)
+        subresult (map-map f submap)]
+    (merge m subresult)))
