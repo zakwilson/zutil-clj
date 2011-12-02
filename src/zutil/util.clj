@@ -15,7 +15,7 @@
     (when pos (- len pos))))
 
 (defn member? [x coll]
-  (when (seq (filter #(= % x) coll))
+  (when (some #(= % x) coll)
     x))
 
 
@@ -52,13 +52,41 @@
 
 ;; third-party - no copyright assignment for make-thumbnail
 
-(defn make-thumbnail [filename new-filename width]
-  (let [img (javax.imageio.ImageIO/read (j/as-file filename))
-        imgtype (java.awt.image.BufferedImage/TYPE_INT_RGB)
-        width (min (.getWidth img) width)
-        height (* (/ width (.getWidth img)) (.getHeight img))
-        simg (java.awt.image.BufferedImage. width height imgtype)
-        g (.createGraphics simg)]
-    (.drawImage g img 0 0 width height nil)
-    (.dispose g)
-    (javax.imageio.ImageIO/write simg "jpg" (j/as-file new-filename))))
+(defn make-thumbnail 
+  ([filename new-filename width]
+     (make-thumbnail filename new-filename width width))
+  ([filename new-filename width height]
+     (let [img (javax.imageio.ImageIO/read (File. filename))
+           imgtype (java.awt.image.BufferedImage/TYPE_INT_RGB)
+           orig-width (.getWidth img)
+           orig-height (.getHeight img)
+           width (min orig-width width)
+           height (min orig-height
+                       height
+                       (* (/ width orig-width) orig-height))
+           width (min width ;round and round we go!
+                      (* (/ height orig-height) orig-width))
+           simg (java.awt.image.BufferedImage. width height imgtype)
+           g (.createGraphics simg)]
+       (.drawImage g img 0 0 width height nil)
+       (.dispose g)
+       (javax.imageio.ImageIO/write simg "jpg" (File. new-filename)))))
+
+(defn integer [x]
+  (Integer/parseInt x))
+
+(defn maybe-integer [x]
+  (try (integer x)
+       (catch Exception _
+         nil)))
+
+(def VALID-CHARS
+     (map char (concat (range 48 58) ; 0-9
+                       (range 66 91) ; A-Z
+                       (range 97 123)))) ; a-z
+
+(defn random-char []
+  (nth VALID-CHARS (rand (count VALID-CHARS))))
+
+(defn random-str [length]
+  (apply str (take length (repeatedly random-char))))

@@ -69,6 +69,7 @@
     (into {} (map kv-f m))))
 
 (defn map-keys [f m & [ks]]
+  "Returns the map with f applied to the value associated with every key in ks"
   (let [submap (select-keys m ks)
         subresult (map-map f submap)]
     (merge m subresult)))
