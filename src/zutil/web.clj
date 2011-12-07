@@ -44,10 +44,12 @@
       (label id (str text))
       [:input {:name id :id id :type (name type)}]]))
 
-(defn select-option [kv]
-  [:option {:value (key kv)}
+(defn select-option [kv & [selected]]
+  [:option {:value (key kv)
+            :selected (when (= selected (key kv))
+                        "selected")}
    (name (val kv))])
 
-(defn select-box [name options]
+(defn select-box [name options & [selected]]
   [:select {:name name :id name}
-   (map select-option options)])
+   (map #(select-option % selected) options)])
