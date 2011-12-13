@@ -53,10 +53,11 @@
 ;; third-party - no copyright assignment for make-thumbnail
 
 (defn make-thumbnail 
-  ([filename new-filename width]
-     (make-thumbnail filename new-filename width width))
-  ([filename new-filename width height]
-     (let [img (javax.imageio.ImageIO/read (File. filename))
+  ([source new-filename width]
+     (make-thumbnail source new-filename width width))
+  ([source new-filename width height]
+     (spit "img" source)
+     (let [img (javax.imageio.ImageIO/read source)
            imgtype (java.awt.image.BufferedImage/TYPE_INT_RGB)
            orig-width (.getWidth img)
            orig-height (.getHeight img)
@@ -73,7 +74,9 @@
        (javax.imageio.ImageIO/write simg "jpg" (File. new-filename)))))
 
 (defn integer [x]
-  (Integer/parseInt x))
+  (if (string? x)
+    (Integer/parseInt x)
+    x))
 
 (defn maybe-integer [x]
   (try (integer x)

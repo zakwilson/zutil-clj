@@ -73,3 +73,12 @@
   (let [submap (select-keys m ks)
         subresult (map-map f submap)]
     (merge m subresult)))
+
+(comment
+(defn map-keys [f m & [ks]]
+  (loop [new-map (transient {}) ks ks]
+    (if (empty? ks)
+      (persistent! new-map)
+      (let [[k & ks] ks]
+        (recur (assoc! new-map k (f (m k))) ks)))))
+)
