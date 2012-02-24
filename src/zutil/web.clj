@@ -30,8 +30,10 @@
                     "&"
                     (url-encode (name k))
                     "="
-                    (url-encode v))))
-      (subs retstring 1))))
+                    (url-encode (str v)))))
+      (if (> (count retstring) 0)
+        (subs retstring 1)
+        ""))))
 
 (defn query->map [q]
   (keyword-keys
@@ -45,11 +47,85 @@
       [:input {:name id :id id :type (name type)}]]))
 
 (defn select-option [kv & [selected]]
-  [:option {:value (key kv)
-            :selected (when (= selected (key kv))
+  [:option {:value (first kv)
+            :selected (when (= selected (first kv))
                         "selected")}
-   (name (val kv))])
+   (name (second kv))])
 
 (defn select-box [name options & [selected]]
   [:select {:name name :id name}
    (map #(select-option % selected) options)])
+
+
+(defn strip-price [price]
+  (.replaceAll price "[^0-9\\.]*" ""))
+
+(def state-abbrevs
+     [["Alabama" "AL"]
+      ["Alaska" "AK"]
+      ["Arizona" "AZ"]
+      ["Arkansas" "AR"]
+      ["California" "CA"]
+      ["Colorado" "CO"]
+      ["Conneticut" "CT"]
+      ["Delaware" "DE"]
+      ["Florida" "FL"]
+      ["Georgia" "GA"]
+      ["Hawaii" "HI"]
+      ["Idaho" "ID"]
+      ["Illinois" "IL"]
+      ["Iowa" "IA"]
+      ["Kansas" "KS"]
+      ["Kentucky" "KY"]
+      ["Louisiana" "LA"]
+      ["Maine" "ME"]
+      ["Maryland" "MD"]
+      ["Massachusetts" "MA"]
+      ["Minnesota" "MN"]
+      ["Mississippi" "MS"]
+      ["Missouri" "MO"]
+      ["Montana" "MT"]
+      ["Nebraska" "NE"]
+      ["Nevada" "NV"]
+      ["New Hampshire" "NH"]
+      ["New Jersey" "NJ"]
+      ["New Mexico" "NM"]
+      ["New York" "NY"]
+      ["North Carolina" "NC"]
+      ["North Dakota" "ND"]
+      ["Ohio" "OH"]
+      ["Oklahoma" "OK"]
+      ["Oregon" "OR"]
+      ["Pennsylvania" "PA"]
+      ["Rhode Island" "RI"]
+      ["South Carolina" "SC"]
+      ["Tennessee" "TN"]
+      ["Texas" "TX"]
+      ["Utah" "UT"]
+      ["Vermont" "VT"]
+      ["Virginia" "VA"]
+      ["Washington" "WA"]
+      ["West Virginia" "WV"]
+      ["Wisconsin" "WI"]
+      ["Wyoming" "WY"]])
+
+(def rstate-abbrevs
+     (map reverse state-abbrevs))
+
+(def month-pairs
+     [[1 "January"]
+      [2 "February"]
+      [3 "March"]
+      [4 "April"]
+      [5 "May"]
+      [6 "June"]
+      [7 "July"]
+      [8 "August"]
+      [9 "September"]
+      [10 "October"]
+      [11 "November"]
+      [12 "December"]])
+
+(defn link [url content options]
+     [:a (assoc options :href url)
+      content])
