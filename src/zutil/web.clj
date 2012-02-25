@@ -131,5 +131,5 @@
       content])
 
 (defn url-encode-properly [unencoded & [encoding]]
-  "Properly urlencode unencoded, because java.net.URLEncoder does it wrong"
-  (.replaceAll (url-encode unencoded encoding) "+" "%20"))
+  "Properly urlencode unencoded, because the author of java.net.URLEncoder doesn't know what he's doing"
+  (.replaceAll (url-encode unencoded encoding) "\\+" "%20"))
