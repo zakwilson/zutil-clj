@@ -129,3 +129,7 @@
 (defn link [url content options]
      [:a (assoc options :href url)
       content])
+
+(defn url-encode-properly [unencoded & [encoding]]
+  "Properly urlencode unencoded, because java.net.URLEncoder does it wrong"
+  (.replaceAll (url-encode unencoded encoding) "+" "%20"))
