@@ -130,6 +130,13 @@
      [:a (assoc options :href url)
       content])
 
+(def old-url-encode url-encode)
+(def old-url-decode url-decode)
+
 (defn url-encode-properly [unencoded & [encoding]]
   "Properly urlencode unencoded, because the author of java.net.URLEncoder doesn't know what he's doing"
-  (.replaceAll (url-encode unencoded encoding) "\\+" "%20"))
+  (.replaceAll (old-url-encode unencoded encoding) "\\+" "%20"))
+
+(defn url-decode-properly [encoded & [encoding]]
+  "Properly urldecode encoded, because the author of java.net.URLEncoder doesn't know what he's doing"
+  (old-url-decode (.replaceAll encoded "\\+" "%2b")))
