@@ -6,7 +6,8 @@
 ;   the terms of this license.
 ;   You must not remove this notice, or any other, from this software.
 
-(ns zutil.map)
+(ns zutil.map
+  (:use zutil.util))
 
 (defn lookup-with [default k a-map]
   (let [found (a-map k)]
@@ -82,3 +83,32 @@
       (let [[k & ks] ks]
         (recur (assoc! new-map k (f (m k))) ks)))))
 )
+
+(defn underscoreize [kw]
+  (keyword (.replaceAll (name kw)
+                        "-"
+                        "_")))
+
+(defn dashize [kw]
+  (keyword (.replaceAll (name kw)
+                        "_"
+                        "-")))
+
+(defn dash->underscore [m]
+  (into {}
+        (map (fn [x]
+               [(underscoreize (key x))
+                (val x)])
+             m)))
+
+(defn underscore->dash [m]
+  (into {}
+        (map (fn [x]
+               [(dashize (key x))
+                (val x)])
+             m)))
+
+(defn reject-keys [map keyseq]
+  (let [good-keys (filter #(not (member? % keyseq))
+                          (keys map))]
+    (select-keys map good-keys)))
