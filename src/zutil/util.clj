@@ -41,6 +41,11 @@
        (filter (memfn isFile)
                (.listFiles (File. d)))))
 
+(defn get-filenames [d]
+  (map (memfn getName)
+       (filter (memfn isFile)
+               (.listFiles (File. d)))))
+
 (defn zpmap [f coll]
   (apply concat
          (pmap #(doall (map f %))
@@ -74,12 +79,24 @@
        (javax.imageio.ImageIO/write simg "jpg" (File. new-filename)))))
 
 (defn integer [x]
-  (if (string? x)
-    (Integer/parseInt x)
-    x))
+  (cond (string? x) (Integer/parseInt x)
+        (integer? x) x
+        (number? x) (int x)
+        true (throw (NumberFormatException.))))
 
 (defn maybe-integer [x]
   (try (integer x)
+       (catch Exception _
+         nil)))
+
+(defn decimal [x]
+  (cond (string? x) (Double/parseDouble x)
+        (float? x) x
+        (number? x) (float x)
+        true (throw (NumberFormatException.))))
+
+(defn maybe-decimal [x]
+  (try (decimal x)
        (catch Exception _
          nil)))
 
@@ -93,3 +110,25 @@
 
 (defn random-str [length]
   (apply str (take length (repeatedly random-char))))
+
+;; from c.c.seq - Copyright Stuart Sierra, EPL
+
+(defn separate
+  "Returns a vector:
+   [ (filter f s), (filter (complement f) s) ]"
+  [f s]
+  [(filter f s) (filter (complement f) s)])
+
+(defn indexed
+  "Returns a lazy sequence of [index, item] pairs, where items come
+  from 's' and indexes count up from zero.
+
+  (indexed '(a b c d))  =>  ([0 a] [1 b] [2 c] [3 d])"
+  [s]
+  (map vector (iterate inc 0) s))
+
+(defn positions
+  "Returns a lazy sequence containing the positions at which pred
+   is true for items in coll."
+  [pred coll]
+  (for [[idx elt] (indexed coll) :when (pred elt)] idx))

@@ -58,7 +58,8 @@
 
 
 (defn strip-price [price]
-  (.replaceAll price "[^0-9\\.]*" ""))
+  (when price
+    (.replaceAll price "[^0-9\\.]*" "")))
 
 (def state-abbrevs
      [["Alabama" "AL"]
