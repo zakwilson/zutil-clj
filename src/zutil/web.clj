@@ -1,6 +1,9 @@
 (ns zutil.web
   (:refer-clojure :exclude [get])
-  (:use hiccup.core hiccup.form-helpers ring.util.codec clj-http.client
+  (:use [hiccup core form]
+        [hiccup.util :only [escape-html]]
+        ring.util.codec
+        clj-http.client
         [zutil util map])
   (:require ring.middleware.params))
 

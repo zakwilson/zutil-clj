@@ -112,3 +112,6 @@
   (let [good-keys (filter #(not (member? % keyseq))
                           (keys map))]
     (select-keys map good-keys)))
+
+(defn select-vals [a-map keyseq]
+  (map keyseq a-map))
