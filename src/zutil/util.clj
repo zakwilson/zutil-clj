@@ -1,5 +1,7 @@
 (ns zutil.util
 ;  (:use clojure.contrib.seq-utils :only (position partition-all))
+  (:use clojure.java.io)
+  (:require [clojure.string :as s])
   (:import (java.io File)))
 
 (defn position
@@ -61,8 +63,7 @@
   ([source new-filename width]
      (make-thumbnail source new-filename width width))
   ([source new-filename width height]
-     (spit "img" source)
-     (let [img (javax.imageio.ImageIO/read source)
+     (let [img (javax.imageio.ImageIO/read (file source))
            imgtype (java.awt.image.BufferedImage/TYPE_INT_RGB)
            orig-width (.getWidth img)
            orig-height (.getHeight img)
@@ -76,7 +77,7 @@
            g (.createGraphics simg)]
        (.drawImage g img 0 0 width height nil)
        (.dispose g)
-       (javax.imageio.ImageIO/write simg "jpg" (File. new-filename)))))
+       (javax.imageio.ImageIO/write simg "jpg" (file new-filename)))))
 
 (defn integer [x]
   (cond (string? x) (Integer/parseInt x)
@@ -84,10 +85,12 @@
         (number? x) (int x)
         true (throw (NumberFormatException.))))
 
+(defmacro maybe [& body]
+  `(try ~@body
+        (catch Exception _# nil)))
+
 (defn maybe-integer [x]
-  (try (integer x)
-       (catch Exception _
-         nil)))
+  (maybe (integer x)))
 
 (defn decimal [x]
   (cond (string? x) (Double/parseDouble x)
@@ -96,9 +99,7 @@
         true (throw (NumberFormatException.))))
 
 (defn maybe-decimal [x]
-  (try (decimal x)
-       (catch Exception _
-         nil)))
+  (maybe (decimal x)))
 
 (def VALID-CHARS
      (map char (concat (range 48 58) ; 0-9
@@ -132,3 +133,36 @@
    is true for items in coll."
   [pred coll]
   (for [[idx elt] (indexed coll) :when (pred elt)] idx))
+
+(def map! 
+  "Equivalent to (comp doall map) - eager, for side-effecting functions"
+  (comp doall map))
+
+(defn ensure-directory-exists [dir]
+  (when-not (.exists dir)
+    (.mkdirs dir)))
+
+(defn ensure-directories-exist [& dirs]
+  (dorun (map ensure-directory-exists dirs)))
+
+(defn nsubs [s start]
+  (if (neg? start)
+    (subs s (max 0 (+ start (count s))))
+    (subs s start)))
+
+(defn list-jpgs [dir]
+  (let [files (.list (file dir))]
+    (filter #(= ".jpg"
+                      (s/lower-case (nsubs % -4)))
+            files)))
+
+(defmacro silence-errors [& body]
+  "Evaluate body and return the result, or nil if an exception is thrown"
+  `(try ~@body
+        (catch Exception e#)))
+
+(defmacro first-truthy [& body]
+  (conj (map (fn [item]
+               (list 'silence-errors item))
+             `~body)
+        'or))
