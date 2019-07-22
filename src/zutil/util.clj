@@ -156,13 +156,35 @@
                       (s/lower-case (nsubs % -4)))
             files)))
 
-(defmacro silence-errors [& body]
+(defmacro silence-errors* [& body]
   "Evaluate body and return the result, or nil if an exception is thrown"
   `(try ~@body
         (catch Exception e#)))
+
+(defmacro silence-errors [& body]
+  (conj (map (fn [item]
+                (list 'silence-errors item))
+             `~body)
+        'do))
 
 (defmacro first-truthy [& body]
   (conj (map (fn [item]
                (list 'silence-errors item))
              `~body)
         'or))
+
+
+(defmacro retry-errors* [retry-count fail-handler & body]
+  `(loop [cnt# ~retry-count]
+     (let [result# 
+           (try ~@body
+                (catch Exception e# e#))]
+       (cond ((complement isa?) (class result#) java.lang.Exception) result#
+         (> cnt# 0) (recur (dec cnt#))
+         :else (~fail-handler result#)))))
+
+(defmacro retry-errors [retry-count fail-handler & body]
+  (conj (map (fn [item]
+               (list 'retry-errors* retry-count fail-handler item))
+             `~body)
+        'do))
